@@ -16,11 +16,14 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
 
-mongoose.connect("mongodb://localhost:27017/blogDB", {useNewUrlParser: true});
+mongoose
+  .connect(process.env.MONGO_URL, {useNewUrlParser: true, useUnifiedTopology: true})
+  .then(console.log("Connected to MongoDB"))
+  .catch((err) => console.log(err));
 
 const postSchema = {
-  title: String,
-  content: String
+  postTitle: String,
+  postContent: String
 };
 
 const Post = mongoose.model("Post", postSchema);
@@ -41,10 +44,9 @@ app.get("/compose", function(req, res){
 
 app.post("/compose", function(req, res){
   const post = new Post({
-    title: req.body.postTitle,
-    content: req.body.postBody
+    postTitle: req.body.postTitle,
+    postContent: req.body.postContent
   });
-
 
   post.save(function(err){
     if (!err){
@@ -55,14 +57,15 @@ app.post("/compose", function(req, res){
 
 app.get("/posts/:postId", function(req, res){
 // const requestedTitle = _.lowerCase(req.params.postTitle);
-const requestedPostId = req.params.postId;
+  const requestedPostId = req.params.postId;
 
   Post.findOne({_id: requestedPostId}, function(err, post){
     res.render("post", {
-      title: post.title,
-      content: post.content
+      title: post.postTitle,
+      content: post.postContent
     });
   });
+
   //   posts.forEach(function(post){
   //     const storedTitle = _.lowerCase(post.title);
   //
@@ -83,7 +86,10 @@ app.get("/contact", function(req, res){
   res.render("contact", {contactContent: contactContent});
 });
 
-
-app.listen(3000, function() {
-  console.log("Server started on port 3000");
+let port = process.env.PORT;
+if (port == null || port == "") {
+  port = 8000;
+}
+app.listen(port, function(){
+  console.log("Server has started successfully.");
 });

@@ -17,9 +17,9 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
 
 dotenv.config();
-
+//process.env.MONGO_URL
 mongoose
-  .connect(process.env.MONGO_URL, {useNewUrlParser: true, useUnifiedTopology: true})
+  .connect("mongodb+srv://admin-yao:test20160302@cluster0.ktfup.mongodb.net/blogDB?retryWrites=true&w=majority", {useNewUrlParser: true, useUnifiedTopology: true})
   .then(console.log("Connected to MongoDB"))
   .catch((err) => console.log(err));
 
